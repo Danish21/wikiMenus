@@ -29,7 +29,10 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 			$dishname = $db->query("SELECT name FROM dish WHERE restaurant = (SELECT name FROM restaurants WHERE id = $_GET[restaurant])");
 			
 			while($row = $dishname->fetch_assoc()){
-				echo "<option value ='" .$row['name']. "' > " .ucwords($row['name']). " </option>";
+                if(ucwords($row['name']) == $_GET['dishname']) {
+                    echo "<option value ='" .$row['name']. "' selected> " .ucwords($row['name']). " </option>";
+                } else
+                    echo "<option value ='" .$row['name']. "' > " .ucwords($row['name']). " </option>";
 			}
 			$dishname->free();
 			?>
@@ -44,8 +47,7 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 				<option value="1">1</option>
 			</select>
 		<label for="reviewtext">Your Review:</label>
-			<textarea name="reviewtext" id="reviewtext" rows="10" cols="30">
-			</textarea>
+			<textarea name="reviewtext" id="reviewtext" rows="10" cols="30"></textarea>
 		<button type = "submit" id="reviewsubmit">Submit Review</button>
 	</form>
 	</fieldset>
@@ -60,7 +62,7 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 			$dish_id = $n->fetch_assoc()['dishid'];
 			
 			$dish_rating = trim($_POST['reviewrating']);
-			$dish_review = $db->real_escape_string(trim($_POST['reviewtext']));
+			$dish_review = trim($_POST['reviewtext']);
 			$email = $db->query("SELECT email FROM users WHERE username = '$_SESSION[username]' ");
 			$user_email = $email->fetch_assoc()['email'];
 			if(!empty($dish_name) && !empty($dish_rating) && !empty($dish_review)){
@@ -77,7 +79,7 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 					$in->bind_param('iis', $dish_id, $review_id, $user_email);
 					
 					if($in->execute()){
-						header('Location: userprofile.php');
+						header('Location: userprofile.php?username='.$_SESSION['username']);
 						die();
 					}
 				}
